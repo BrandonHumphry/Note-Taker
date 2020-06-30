@@ -1,8 +1,9 @@
 var express = require("express");
 var path = require("path");
-const db = require('./db/db.json')
+var notes = require("./db/db.json");
+const fs = require("fs");
+
 // Sets up the Express App
-// =============================================================
 var app = express();
 var PORT = 3000;
 
@@ -10,20 +11,49 @@ var PORT = 3000;
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-app.use(express.static('public'));
+app.use(express.static("public"));
 
-app.get('/', (req,res)=>{
-    res.sendFile(path.join(__dirname, "./public/index.html"))
+// express server receives request, provides response as object
+app.get("/notes", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/notes.html"));
+});
+// returns db.json file
+app.get("/api/notes", (req, res) => {
+  res.json(notes);
+  console.log(notes);
 });
 
-app.get('/notes', (req,res)=>{
-    res.sendFile(path.join(__dirname,"./public/notes.html"))
-})
+// post method creating a new note
+app.post("/api/notes", (req, res) => {
+  console.log(req.body); 
+// create a constant using req.body for what the user wants to submit to api above
+  const note = req.body;
+// conditional: if notes are null, set the note.id to 1, else note.id = length of notes array
+  if (notes === "") {
+    note.id = 1;
+  } else {
+    note.id = notes.length;
+  }
+// push the note the user wants to submit
+  notes.push(note);
+// create a variable to convert notes to a JSON string
+  var updateDb = JSON.stringify(notes);
+// write the file with additional notes from above
+  fs.writeFile("db/db.json", updateDb, function (err) {
+    if (err) throw err;
+    console.log("Note sent");
+// send the updated notes 
+    res.send(notes);
+  });
+});
 
-app.get('/api/notes', (req,res)=>{
-    res.json(db)
-})
+// still need a delete function 6.29.20
+
+// returns index.html
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
+});
 
 app.listen(PORT, function() {
-    console.log("App listening on PORT: " + PORT);
-  });
+  console.log("App listening on PORT: " + PORT);
+});
