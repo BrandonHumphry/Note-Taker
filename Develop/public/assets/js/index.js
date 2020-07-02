@@ -33,6 +33,7 @@ var deleteNote = function(id) {
   });
 };
 
+
 // If there is an activeNote, display it, otherwise render empty inputs
 var renderActiveNote = function() {
   $saveNoteBtn.hide();

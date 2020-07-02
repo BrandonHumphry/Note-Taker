@@ -47,7 +47,26 @@ app.post("/api/notes", (req, res) => {
   });
 });
 
-// still need a delete function 6.29.20
+// delete method for removing a note "id" is just a parameter but is most helpful when matched up with front end
+app.delete("/api/notes/:id", (req, res) => {
+  // thisNote = all notes with a specific id (req.params.id)
+  const thisNote = req.params.id;
+  console.log(thisNote);
+  // search db and remove thisNote
+  const filteredNotes = notes.filter(noted=>{
+    //check if item's id does not equal thisNote
+    return noted.id != thisNote;
+  });
+  // create a variable to convert notes to a JSON string
+  var updateDb = JSON.stringify(filteredNotes);
+  // write the file with additional notes from above
+  fs.writeFile("db/db.json", updateDb, function (err) {
+    if (err) throw err;
+    console.log("Note deleted");
+// send the updated notes 
+    res.send(notes);
+  });
+});
 
 // returns index.html
 app.get("/", (req, res) => {
